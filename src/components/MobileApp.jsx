@@ -136,7 +136,7 @@ function MobileApp() {
               <div className="logo_user"></div>
               <div className="logo_profile">
                 <h3>{user.full_name || 'Имя не указано'}</h3>
-                <p>{user.branch || 'Филиал не указан'}</p>
+                <p>{user.counterparty_type || 'Филиал не указан'}</p>
               </div>
             </div>
           </div>

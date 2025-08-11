@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { LayoutGrid, Users, RefreshCw, TrendingUp } from 'lucide-react';
+import { LayoutGrid, Users, TrendingUp } from 'lucide-react';
 import SidebarItem from './SidebarItem';
+import StatusBadge from './StatusBadge'; // путь зависит от структуры проекта
 import { useNavigate } from 'react-router-dom';
 import '../index.css';
 
@@ -8,45 +9,37 @@ function CallLogViewer() {
   const navigate = useNavigate();
   const [user, setUser] = useState({});
   const [events, setEvents] = useState([]);
-
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6
+  const itemsPerPage = 8;
 
   const normalize = (val) => (!val || val === 'unknown') ? 'Неизвестный' : val;
 
   const translateStatus = (val) => {
     const translations = {
-      'answered': 'Отвечен',
-      'no answer': 'Нет ответа',
+      'answered': 'Входящий',
+      'no answer': 'Пропущенный',
       'busy': 'Занято',
       'failed': 'Ошибка',
-      'ringing': 'Звонит',
-      'ring': 'Звонит',
-      'up': 'Активен',
+      'ringing': 'Исходящий',
+      'ring': 'Входящий',
+      'up': 'Входящий',
       'dialing': 'Набирает',
       'hangup': 'Сброшен',
-      'unknown': 'Неизвестный',
-      'waiting': 'Ожидание',
+      'Down': 'Пропущенный',
+      'waiting': 'Исходящий',
     };
     return translations[val?.toLowerCase()] || normalize(val);
   };
 
-  const getCallType = (event) => {
-    const caller = (event.CallerIDNum || '').toString();
-    const connected = (event.ConnectedLineNum || '').toString();
-    const state = (event.Disposition || event.ChannelStateDesc || '').toLowerCase();
-    const channel = event.Channel || '';
-
-    if (['no answer', 'busy', 'failed'].includes(state)) return 'Пропущенный';
-    if (/SIP\/\d+/.test(channel) && connected.length === 3) return 'Входящий';
-    if (caller.length === 3 && connected.length > 3) return 'Исходящий';
-    return '—';
-  };
-
   useEffect(() => {
-    const stored = localStorage.getItem('user');
-    if (stored) {
-      setUser(JSON.parse(stored));
+    // 📥 Загрузка сохранённых звонков
+    const saved = localStorage.getItem('callEvents');
+    if (saved) {
+      try {
+        setEvents(JSON.parse(saved));
+      } catch (e) {
+        console.error('Ошибка при загрузке звонков из localStorage:', e);
+      }
     }
 
     const socket = new WebSocket('ws://10.10.10.21:8081');
@@ -57,10 +50,16 @@ function CallLogViewer() {
       const payload = JSON.parse(event.data);
       const incomingEvents = Array.isArray(payload.data) ? payload.data : [payload];
 
-      const enrichedEvents = incomingEvents.map(e => ({
-        ...e,
-        timestamp: e.timestamp || new Date().toISOString(),
-      }));
+      const enrichedEvents = incomingEvents
+        .filter(e =>
+          !['NewConnectedLine', 'ExtensionStatus', 'Down'].includes(e.Event) &&
+          /^\d{7,}$/.test((e.CallerIDNum || e.Source || e.ConnectedLineNum || '').toString().trim())
+        )
+        .map(e => ({
+          ...e,
+          timestamp: e.timestamp || new Date().toISOString(),
+          phone: (e.CallerIDNum || e.Source || e.ConnectedLineNum || '').toString().trim()
+        }));
 
       setEvents(prevEvents => {
         const now = Date.now();
@@ -71,9 +70,17 @@ function CallLogViewer() {
           return time >= oneHourAgo;
         });
 
-        return merged
-          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-          .slice(0, 100);
+        const uniqueByPhone = {};
+        const deduplicated = merged.filter(ev => {
+          if (uniqueByPhone[ev.phone]) return false;
+          uniqueByPhone[ev.phone] = true;
+          return true;
+        });
+
+        // 💾 Сохраняем в localStorage
+        localStorage.setItem('callEvents', JSON.stringify(deduplicated));
+
+        return deduplicated.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
       });
     };
 
@@ -81,6 +88,11 @@ function CallLogViewer() {
     socket.onclose = () => console.warn('WebSocket отключен');
 
     return () => socket.close();
+  }, []);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('user');
+    if (stored) setUser(JSON.parse(stored));
   }, []);
 
   const totalPages = Math.ceil(events.length / itemsPerPage);
@@ -112,7 +124,7 @@ function CallLogViewer() {
               <div className="logo_user"></div>
               <div className="logo_profile">
                 <h3>{normalize(user.full_name)}</h3>
-                <p>{normalize(user.branch)}</p>
+                <p>{normalize(user.counterparty_type)}</p>
               </div>
             </div>
           </div>
@@ -125,24 +137,24 @@ function CallLogViewer() {
           <div className='calls_position'>
             <div className='buttons_calls'>
               <button onClick={() => navigate('/Dashboard')}>Посмотреть статистику</button>
-              <TrendingUp/>
+              <TrendingUp />
             </div>
             <table className="bd_calls">
               <thead>
                 <tr>
                   <th>Номер</th>
+                  <th>Время звонка</th>
                   <th>Статус</th>
-                  <th>Время</th>
-                  <th>Тип звонка</th>
                 </tr>
               </thead>
               <tbody>
                 {paginatedEvents.map((e, idx) => (
-                  <tr key={idx}>
-                    <td>{normalize(e.CallerIDNum)}</td>
-                    <td>{translateStatus(e.Disposition || e.ChannelStateDesc || 'waiting')}</td>
+                  <tr key={idx} className={idx % 2 === 0 ? 'row-even' : 'row-odd'}>
+                    <td>{normalize(e.phone)}</td>
                     <td>{new Date(e.timestamp).toLocaleString()}</td>
-                    <td>{getCallType(e) || 'неизвестный'}</td>
+                    <td>
+                      <StatusBadge status={translateStatus(e.Disposition || e.ChannelStateDesc || 'waiting')} />
+                    </td>
                   </tr>
                 ))}
               </tbody>

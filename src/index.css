@@ -109,6 +109,7 @@ input::placeholder{
 /*Statistic*/
 .dashboard {
   display: flex;
+  height: 100%;
   font-family: sans-serif;
 }
 
@@ -306,14 +307,12 @@ margin: 4px 0;
     border-spacing: 0;
 }
 .user-table th,
-.bd_calls th,
 .bd_calls td,
 .user-table td {
 	padding:20px 10px;
   	text-align: center;
 }
-.user-table thead th,
-.bd_calls thead th{
+.user-table thead th{
 	padding: 5px 10px;
 }
 .user-table thead th:first-child,
@@ -324,6 +323,11 @@ margin: 4px 0;
 .user-table thead th:last-child {
   border-radius: 0 12px 12px 0;
 }
+
+.bd_calls th{
+	padding: 15px 0px;
+}
+
 .user-table>thead,
 .bd_calls>thead{
 	background-color: #E9FBFB;
@@ -607,11 +611,11 @@ margin-left: 10px;
 	margin-left: 15px;
 	position: absolute;
 }
-
 .bd_calls{
-	    width: 95%;
+	    width: 98%;
+	    margin: 0 auto;
+	    background-color: #FFF;
     border-radius: 8px;
-    padding: 30px;
     border-spacing: 0;
 }
 
@@ -633,6 +637,14 @@ margin-left: 10px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
+}
+
+.row-even td {
+  background-color: #f9f9f9;
+}
+
+.row-odd td {
+  background-color: #ffffff;
 }
 
 

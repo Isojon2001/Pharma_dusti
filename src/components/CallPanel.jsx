@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { LayoutGrid, Users, TrendingUp } from 'lucide-react';
 import SidebarItem from './SidebarItem';
-import StatusBadge from './StatusBadge'; // путь зависит от структуры проекта
+import StatusBadge from './StatusBadge';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import '../index.css';
 
 function CallLogViewer() {
-  const navigate = useNavigate();
   const [user, setUser] = useState({});
   const [events, setEvents] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
+  const navigate = useNavigate();
 
   const normalize = (val) => (!val || val === 'unknown') ? 'Неизвестный' : val;
 
@@ -32,7 +33,6 @@ function CallLogViewer() {
   };
 
   useEffect(() => {
-    // 📥 Загрузка сохранённых звонков
     const saved = localStorage.getItem('callEvents');
     if (saved) {
       try {
@@ -77,7 +77,6 @@ function CallLogViewer() {
           return true;
         });
 
-        // 💾 Сохраняем в localStorage
         localStorage.setItem('callEvents', JSON.stringify(deduplicated));
 
         return deduplicated.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
@@ -92,7 +91,44 @@ function CallLogViewer() {
 
   useEffect(() => {
     const stored = localStorage.getItem('user');
-    if (stored) setUser(JSON.parse(stored));
+    const token = localStorage.getItem('accessToken');
+
+    if (stored) {
+      setUser(JSON.parse(stored));
+    }
+
+    const fetchProfile = async () => {
+      if (!token) {
+        console.warn('Нет токена авторизации');
+        return;
+      }
+
+      try {
+        const res = await axios.get('http://api.dustipharma.tj:1212/api/v1/app/profile/users', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const profiles = Array.isArray(res.data) ? res.data : res.data?.payload || [];
+
+        const storedUser = JSON.parse(localStorage.getItem('user'));
+        const matched = profiles.find(p =>
+          p.id === storedUser?.id ||
+          p.phone === storedUser?.phone ||
+          p.username === storedUser?.username
+        );
+
+        if (matched) {
+          setUser(prev => ({
+            ...prev,
+            Наименование: matched['Наименование'] || prev['Наименование']
+          }));
+        }
+      } catch (err) {
+        console.error('Ошибка при получении профиля:', err.response?.data || err.message);
+      }
+    };
+
+    fetchProfile();
   }, []);
 
   const totalPages = Math.ceil(events.length / itemsPerPage);
@@ -123,8 +159,8 @@ function CallLogViewer() {
             <div className="logo_flex">
               <div className="logo_user"></div>
               <div className="logo_profile">
-                <h3>{normalize(user.full_name)}</h3>
-                <p>{normalize(user.counterparty_type)}</p>
+                <h3>{user.Наименование || 'Имя не указано'}</h3>
+                <p>{user.counterparty_type || 'Филиал не указан'}</p>
               </div>
             </div>
           </div>

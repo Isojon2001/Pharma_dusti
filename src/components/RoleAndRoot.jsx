@@ -5,6 +5,7 @@ import { useNavigate, Outlet } from 'react-router-dom'
 import '../index.css';
 
 function RoleAndRoot() {
+  const [managerName, setManagerName] = useState('');
   const navigate = useNavigate()
   const [user, setUser] = useState({});
   const [users, setUsers] = useState([]);
@@ -17,7 +18,30 @@ const paginatedUsers = users.slice(
   currentPage * itemsPerPage
 );
 
+    useEffect(() => {
+    const fetchManager = async () => {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        console.warn('Нет токена авторизации');
+        return;
+      }
 
+      try {
+        const res = await axios.get('http://api.dustipharma.tj:1212/api/v1/app/profile/users', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const users = Array.isArray(res.data) ? res.data : res.data?.payload || [];
+        const name = users[0]?.Наименование || 'Менеджер не найден';
+        setManagerName(name);
+      } catch (err) {
+        console.error('Ошибка при получении МенеджерКонтрагента:', err.response?.data || err.message);
+        setManagerName('Менеджер не найден');
+      }
+    };
+
+    fetchManager();
+  }, []);
 useEffect(() => {
   const stored = localStorage.getItem('user');
   if (stored) {
@@ -26,7 +50,7 @@ useEffect(() => {
 
   const token = localStorage.getItem('accessToken'); 
 
-  fetch('http://api.dustipharma.tj:1212/api/v1/app/admin/users', {
+  fetch('http://api.dustipharma.tj:1212/api/v1/app/profile/users', {
     headers: {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
@@ -77,7 +101,7 @@ useEffect(() => {
             <div className="logo_flex">
               <div className="logo_user"></div>
               <div className="logo_profile">
-                <h3>{user.full_name || 'Имя не указано'}</h3>
+                <h3>{managerName}</h3>
                 <p>{user.counterparty_type || 'Филиал не указан'}</p>
               </div>
             </div>
@@ -111,7 +135,6 @@ useEffect(() => {
                   {paginatedUsers.map((u, index) => (
                 <tr key={index}>
                   <td>{index + 1}</td>
-                      <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
                   <td>{u['Наименование'] || '-'}</td>
                   <td>{u['ВидКонтрагента'] || '-'}</td>
                   <td>{u['Телефон'] || '-'}</td>

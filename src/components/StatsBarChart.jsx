@@ -90,3 +90,4 @@ function StatsBarChart() {
 }
 
 export default StatsBarChart;
+  

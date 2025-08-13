@@ -4,6 +4,7 @@ import SidebarItem from '../components/SidebarItem';
 import '../index.css';
 
 function Partner() {
+  const [profileUsers, setProfileUsers] = useState([]);
   const [user, setUser] = useState({});
   const [users, setUsers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -14,16 +15,15 @@ const paginatedUsers = users.slice(
   (currentPage - 1) * itemsPerPage,
   currentPage * itemsPerPage
 );
-
-
 useEffect(() => {
   const stored = localStorage.getItem('user');
+  const token = localStorage.getItem('accessToken');
+
   if (stored) {
     setUser(JSON.parse(stored));
   }
 
-  const token = localStorage.getItem('accessToken');
-
+  // Первый запрос — admin users
   fetch('http://api.dustipharma.tj:1212/api/v1/app/admin/users', {
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -31,17 +31,39 @@ useEffect(() => {
     }
   })
     .then(res => {
-      if (!res.ok) {
-        throw new Error(`Ошибка HTTP: ${res.status}`);
-      }
+      if (!res.ok) throw new Error(`Ошибка HTTP: ${res.status}`);
+      return res.json();
+    })
+    .then(data => setUsers(data.payload))
+    .catch(error => console.error('Ошибка при получении пользователей:', error));
+
+  // Второй запрос — profile users
+  fetch('http://api.dustipharma.tj:1212/api/v1/app/profile/users', {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  })
+    .then(res => {
+      if (!res.ok) throw new Error(`Ошибка HTTP: ${res.status}`);
       return res.json();
     })
     .then(data => {
-      setUsers(data.payload);
+      const profileList = data.payload;
+      setProfileUsers(profileList);
+
+      // Найдём профиль текущего пользователя по ID или другому признаку
+      const storedUser = JSON.parse(localStorage.getItem('user'));
+      const matchedProfile = profileList.find(p => p.id === storedUser?.id);
+
+      if (matchedProfile) {
+        setUser(prev => ({
+          ...prev,
+          Наименование: matchedProfile['Наименование'] || prev['Наименование']
+        }));
+      }
     })
-    .catch(error => {
-      console.error('Ошибка при получении пользователей:', error);
-    });
+    .catch(error => console.error('Ошибка при получении профилей:', error));
 }, []);
 
 
@@ -74,7 +96,7 @@ useEffect(() => {
             <div className="logo_flex">
               <div className="logo_user"></div>
               <div className="logo_profile">
-                <h3>{user.full_name || 'Имя не указано'}</h3>
+              <h3>{user.Наименование || 'Имя не указано'}</h3>
                 <p>{user.counterparty_type || 'Филиал не указан'}</p>
               </div>
             </div>
@@ -108,7 +130,7 @@ useEffect(() => {
                   <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
                   <td>{u['Наименование'] || '-'}</td>
                   <td>{u['ВидКонтрагента'] || '-'}</td>
-                  <td>{u['БизнесРегион'] || '-'}</td>
+                  <td>{u['БизнесРегион' || 'Адрес'] || ''}</td>
                   <td>{u['Телефон'] || '-'}</td>
                   <td>{u['МенеджерКонтрагента'] || '-'}</td>
                   <td style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>

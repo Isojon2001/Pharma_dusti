@@ -15,7 +15,23 @@ function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    async function fetchManagerName() {
+  try {
+    const response = await axios.get('http://api.dustipharma.tj:1212/api/v1/app/profile/users');
+    
+    // Предположим, ответ — это массив объектов
+    const users = response.data;
 
+    // Ищем нужного пользователя или просто берём первого
+    const manager = users[0]?.МенеджерКонтрагента;
+
+    console.log('МенеджерКонтрагента:', manager);
+    return manager;
+  } catch (error) {
+    console.error('Ошибка при получении менеджера:', error);
+    return null;
+  }
+}
     try {
       const response = await axios.post(
         'http://api.dustipharma.tj:1212/api/v1/app/auth/sign-in',

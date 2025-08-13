@@ -13,13 +13,38 @@ function MobileApp() {
   const [description, setDescription] = useState('');
   const [message, setMessage] = useState('');
   const [showForm, setShowForm] = useState(false);
+useEffect(() => {
+  const stored = localStorage.getItem('user');
+  if (stored) {
+    const parsedUser = JSON.parse(stored);
+    setUser(parsedUser);
 
-  useEffect(() => {
-    const stored = localStorage.getItem('user');
-    if (stored) {
-      setUser(JSON.parse(stored));
-    }
-  }, []);
+    const token = localStorage.getItem('accessToken');
+    if (!token) return;
+
+    axios.get('http://api.dustipharma.tj:1212/api/v1/app/profile/users', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    .then(res => {
+      const profiles = Array.isArray(res.data?.payload) ? res.data.payload : [];
+
+      const matched = profiles.find(p =>
+        p.Телефон === parsedUser.phone || p.id === parsedUser.id
+      );
+
+      if (matched) {
+        setUser(prev => ({
+          ...prev,
+          full_name: matched.Наименование || prev.full_name,
+        }));
+      }
+    })
+    .catch(err => {
+      console.error('Ошибка при получении Наименования:', err.response?.data || err.message);
+    });
+  }
+}, []);
+
 
   const fetchCategories = async () => {
     try {

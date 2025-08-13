@@ -7,6 +7,7 @@ import SidebarItem from '../components/SidebarItem';
 import '../index.css';
 
 function Dashboard() {
+  const [managerName, setManagerName] = useState('');
   const [stats, setStats] = useState({});
   const [amiEvents, setAmiEvents] = useState([]);
   const [user, setUser] = useState({});
@@ -39,7 +40,31 @@ function Dashboard() {
   };
 
   useEffect(() => {
-    // Загружаем сохранённые события
+    const fetchManager = async () => {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        console.warn('Нет токена авторизации');
+        return;
+      }
+
+      try {
+        const res = await axios.get('http://api.dustipharma.tj:1212/api/v1/app/profile/users', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const users = Array.isArray(res.data) ? res.data : res.data?.payload || [];
+        const name = users[0]?.Наименование || 'Менеджер не найден';
+        setManagerName(name);
+      } catch (err) {
+        console.error('Ошибка при получении МенеджерКонтрагента:', err.response?.data || err.message);
+        setManagerName('Менеджер не найден');
+      }
+    };
+
+    fetchManager();
+  }, []);
+
+  useEffect(() => {
     const savedEvents = localStorage.getItem('amiEvents');
     if (savedEvents) {
       try {
@@ -55,30 +80,34 @@ function Dashboard() {
     socket.onopen = () => console.log('✅ WebSocket открыт');
 
     socket.onmessage = (event) => {
-      const payload = JSON.parse(event.data);
-      const incoming = Array.isArray(payload.data) ? payload.data : [payload.data];
+      try {
+        const payload = JSON.parse(event.data);
+        const incoming = Array.isArray(payload.data) ? payload.data : [payload.data];
 
-      const enriched = incoming
-        .filter(e => e && e.Event)
-        .map(e => {
-          const phone = (e.CallerIDNum || e.Source || e.ConnectedLineNum || '').toString().trim();
-          const duration = parseInt(e.Duration || '0', 10);
-          const cause = (e.Cause || '').toLowerCase();
+        const enriched = incoming
+          .filter(e => e && e.Event)
+          .map(e => {
+            const phone = (e.CallerIDNum || e.Source || e.ConnectedLineNum || '').toString().trim();
+            const duration = parseInt(e.Duration || '0', 10);
+            const cause = (e.Cause || '').toLowerCase();
 
-          return {
-            ...e,
-            timestamp: e.timestamp || new Date().toISOString(),
-            phone,
-            duration,
-            cause
-          };
+            return {
+              ...e,
+              timestamp: e.timestamp || new Date().toISOString(),
+              phone,
+              duration,
+              cause
+            };
+          });
+
+        setAmiEvents(prev => {
+          const updated = [...enriched, ...prev].slice(0, 500);
+          localStorage.setItem('amiEvents', JSON.stringify(updated));
+          return updated;
         });
-
-      setAmiEvents(prev => {
-        const updated = [...enriched, ...prev].slice(0, 500);
-        localStorage.setItem('amiEvents', JSON.stringify(updated));
-        return updated;
-      });
+      } catch (err) {
+        console.error('Ошибка обработки WebSocket-сообщения:', err);
+      }
     };
 
     socket.onerror = () => setSocketError(true);
@@ -89,7 +118,13 @@ function Dashboard() {
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
-    if (storedUser) setUser(JSON.parse(storedUser));
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (err) {
+        console.error('Ошибка парсинга user из localStorage:', err);
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -160,7 +195,7 @@ function Dashboard() {
             <div className="logo_flex">
               <div className="logo_user"></div>
               <div className="logo_profile">
-                <h3>{user.full_name || 'Имя не указано'}</h3>
+                <h3>{managerName}</h3>
                 <p>{user.counterparty_type || 'Филиал не указан'}</p>
               </div>
             </div>

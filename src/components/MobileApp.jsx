@@ -45,7 +45,6 @@ useEffect(() => {
   }
 }, []);
 
-
   const fetchCategories = async () => {
     try {
       const token = localStorage.getItem('accessToken');

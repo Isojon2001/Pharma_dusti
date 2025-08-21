@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Журнал звонков AMI</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+    h2 { margin-bottom: 10px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+    }
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+    tr.row-even { background: #f9f9f9; }
+    tr.row-odd { background: #ffffff; }
+    .pagination_controls {
+      margin-top: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    button {
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+    .status-badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      background: #eee;
+      font-weight: bold;
+    }
+    .stats {
+      margin: 20px 0;
+      background: #fff;
+      padding: 10px;
+      border: 1px solid #ccc;
+    }
+    .stats div {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <h2>📞 Журнал звонков</h2>
+
+  <div class="stats">
+    <div id="totalCalls">Всего звонков: 0</div>
+    <div id="answered">Успешные звонки: 0</div>
+    <div id="missed">Пропущенные звонки: 0</div>
+    <div id="duration">Общая длительность (сек): 0</div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Номер</th>
+        <th>Время звонка</th>
+        <th>Статус</th>
+      </tr>
+    </thead>
+    <tbody id="callTableBody"></tbody>
+  </table>
+
+  <div class="pagination_controls">
+    <button id="prevBtn">◀ Пред</button>
+    <span id="pageInfo">Страница 1</span>
+    <button id="nextBtn">След ▶</button>
+  </div>
+
+  <script>
+    const events = [];
+    const itemsPerPage = 8;
+    let currentPage = 1;
+
+    const stats = {
+      totalCalls: 0,
+      answered: 0,
+      missed: 0,
+      totalDuration: 0
+    };
+
+    const normalize = val => (!val || val === 'unknown') ? 'Неизвестный' : val;
+
+    const translateStatus = val => {
+      const translations = {
+        'answered': 'Входящий',
+        'no answer': 'Пропущенный',
+        'busy': 'Занято',
+        'failed': 'Ошибка',
+        'ringing': 'Исходящий',
+        'ring': 'Входящий',
+        'up': 'Входящий',
+        'dialing': 'Набирает',
+        'hangup': 'Сброшен',
+        'Down': 'Пропущенный',
+        'waiting': 'Исходящий',
+      };
+      return translations[val?.toLowerCase()] || normalize(val);
+    };
+
+    const updateStatsUI = () => {
+      document.getElementById('totalCalls').textContent = `Всего звонков: ${stats.totalCalls}`;
+      document.getElementById('answered').textContent = `Успешные звонки: ${stats.answered}`;
+      document.getElementById('missed').textContent = `Пропущенные звонки: ${stats.missed}`;
+      document.getElementById('duration').textContent = `Общая длительность (сек): ${stats.totalDuration}`;
+    };
+
+    const renderTable = () => {
+      const tbody = document.getElementById('callTableBody');
+      tbody.innerHTML = '';
+
+      const start = (currentPage - 1) * itemsPerPage;
+      const paginated = events.slice(start, start + itemsPerPage);
+
+      paginated.forEach((e, idx) => {
+        const row = document.createElement('tr');
+        row.className = idx % 2 === 0 ? 'row-even' : 'row-odd';
+
+        row.innerHTML = `
+          <td>${normalize(e.phone)}</td>
+          <td>${new Date(e.timestamp).toLocaleString()}</td>
+          <td><span class="status-badge">${translateStatus(e.Disposition || e.ChannelStateDesc || 'waiting')}</span></td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      document.getElementById('pageInfo').textContent = `Страница ${currentPage}`;
+      document.getElementById('prevBtn').disabled = currentPage === 1;
+      document.getElementById('nextBtn').disabled = currentPage >= Math.ceil(events.length / itemsPerPage);
+    };
+
+    document.getElementById('prevBtn').onclick = () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderTable();
+      }
+    };
+
+    document.getElementById('nextBtn').onclick = () => {
+      if (currentPage < Math.ceil(events.length / itemsPerPage)) {
+        currentPage++;
+        renderTable();
+      }
+    };
+
+    const socket = new WebSocket('ws://10.10.10.21:8081');
+
+    socket.onmessage = (event) => {
+      const payload = JSON.parse(event.data);
+      const incoming = Array.isArray(payload.data) ? payload.data : [payload.data];
+
+        const enriched = incoming
+  .filter(e => e && e.Event && /^\d{9}$/.test((e.CallerIDNum || e.Source || e.ConnectedLineNum || '').toString().trim()))
+
+        .map(e => {
+          const phone = (e.CallerIDNum || e.Source || e.ConnectedLineNum || '').toString().trim();
+          const duration = parseInt(e.Duration || '0', 10);
+          const cause = (e.Cause || '').toLowerCase();
+
+          // Подсчёт статистики
+          stats.totalCalls++;
+
+if (e.Event === 'Hangup') {
+  if (cause.includes('normal clearing')) stats.answered++;
+  else stats.missed++;
+  if (!isNaN(duration)) stats.totalDuration += duration;
+}
+
+
+          return {
+            ...e,
+            timestamp: e.timestamp || new Date().toISOString(),
+            phone
+          };
+        });
+
+      events.unshift(...enriched);
+      events.splice(200); // ограничим до 200 событий
+      updateStatsUI();
+      renderTable();
+    };
+
+    socket.onerror = () => console.error('❌ WebSocket ошибка');
+    socket.onclose = () => console.warn('⚠️ WebSocket отключен');
+  </script>
+</body>
+</html>

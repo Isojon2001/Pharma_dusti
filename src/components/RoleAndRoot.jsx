@@ -6,7 +6,7 @@ import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import '../index.css';
 
 function RoleAndRoot() {
-  const { token } = useAuth();
+  const { token, logout } = useAuth();
   const [profile, setProfile] = useState(null);
   const [users, setUsers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -17,7 +17,6 @@ function RoleAndRoot() {
   const paginatedUsers = users.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
   const totalPages = Math.ceil(users.length / itemsPerPage);
 
-  // Загрузка профиля текущего пользователя
   useEffect(() => {
     if (!token) return;
 
@@ -129,6 +128,9 @@ function RoleAndRoot() {
               <div className="logo_profile">
                 <h3>{profile?.['Наименование']?.trim() || 'Менеджер не найден'}</h3>
                 <p>{profile?.['ВидКонтрагента']?.trim() || 'Филиал не указан'}</p>
+                <button onClick={() => { logout(); navigate('/'); }} className="logout-btn">
+                  🚪 Выйти
+                </button>
               </div>
             </div>
           </div>

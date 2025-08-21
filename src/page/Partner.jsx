@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import '../index.css';
 
 function Partner() {
-  const { token } = useAuth();
+  const { token, logout } = useAuth();
   const [adminUsers, setAdminUsers] = useState([]);
   const [clientUsers, setClientUsers] = useState([]);
   const [profile, setProfile] = useState(null);
@@ -147,6 +147,9 @@ ID: ${user.id || '—'}
               <div className="logo_profile">
                 <h3>{profile?.['Наименование']?.trim() || 'Имя не указано'}</h3>
                 <p>{profile?.['ВидКонтрагента']?.trim() || 'Роль не указана'}</p>
+                <button onClick={() => { logout(); navigate('/'); }} className="logout-btn">
+                  🚪 Выйти
+                </button>
               </div>
             </div>
           </div>

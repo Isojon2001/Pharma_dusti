@@ -233,6 +233,37 @@ margin: 4px 0;
 	font-size: 18px;
 	padding-left: 10px;
 }
+.search-input {
+  margin-top: 10px;
+  padding: 8px 12px;
+  width: 300px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+select {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  font-size: 14px;
+  color: #333;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  margin-left: 10px;
+}
+
+select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+}
+
+select option {
+  background-color: #fff;
+  color: #333;
+}
+
+
 .statistics_paragraph>input{
 	width: 310px;
 	height: 44px;

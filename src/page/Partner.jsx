@@ -6,85 +6,71 @@ import '../index.css';
 
 function Partner() {
   const { token, logout } = useAuth();
-  const [adminUsers, setAdminUsers] = useState([]);
-  const [clientUsers, setClientUsers] = useState([]);
+  const [users, setUsers] = useState([]);
   const [profile, setProfile] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
   const itemsPerPage = 6;
-  const totalPages = Math.ceil(clientUsers.length / itemsPerPage);
-  const paginatedUsers = clientUsers.slice(
+
+  // 🔍 Поиск
+  const filteredUsers = users.filter(user => {
+    const term = searchTerm.toLowerCase();
+    return (
+      user['Наименование']?.toLowerCase().includes(term) ||
+      user['ВидКонтрагента']?.toLowerCase().includes(term) ||
+      user['Телефон']?.toLowerCase().includes(term) ||
+      user['МенеджерКонтрагента']?.toLowerCase().includes(term)
+    );
+  });
+
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const paginatedUsers = filteredUsers.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
-  // Загрузка списка пользователей
+  // 📦 Загрузка всех пользователей
   useEffect(() => {
     if (!token) return;
 
-    fetch('http://api.dustipharma.tj:1212/api/v1/app/admin/users', {
+    fetch('http://api.dustipharma.tj:1212/api/v1/app/admin/users?page=1&size=10000', {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     })
-      .then(res => {
-        if (!res.ok) throw new Error(`Ошибка HTTP: ${res.status}`);
-        return res.json();
-      })
+      .then(res => res.json())
       .then(data => {
-        const allUsers = data.payload || [];
-
-        const admins = allUsers.filter(
-          u =>
-            ['admin', 'moderator'].includes(u['Роль']?.toLowerCase()) ||
-            ['admin', 'moderator'].includes(u['ВидКонтрагента']?.toLowerCase())
-        );
-
-        const clients = allUsers.filter(
-          u => u['ВидКонтрагента']?.toLowerCase() === 'клиент'
-        );
-
-        setAdminUsers(admins);
-        setClientUsers(clients);
+        setUsers(data.payload || []);
       })
-      .catch(error => console.error('Ошибка при получении пользователей:', error));
+      .catch(err => console.error('Ошибка загрузки пользователей:', err));
   }, [token]);
 
-  // Загрузка профиля текущего пользователя
-useEffect(() => {
-  if (!token) return;
+  // 👤 Загрузка профиля текущего пользователя
+  useEffect(() => {
+    if (!token) return;
 
-  fetch('http://api.dustipharma.tj:1212/api/v1/app/profile/users', {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-  })
-    .then(res => res.json())
-    .then(data => {
-      const payload = data.payload;
-
-      if (Array.isArray(payload)) {
-        setProfile(payload[0] || null);
-      } else if (typeof payload === 'object') {
-        setProfile(payload);
-      } else {
-        console.warn('Неподдерживаемый формат профиля:', payload);
-        setProfile(null);
-      }
+    fetch('http://api.dustipharma.tj:1212/api/v1/app/profile/users', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
     })
-    .catch(error => {
-      console.error('Ошибка при загрузке профиля:', error);
-      setProfile(null);
-    });
-}, [token]);
+      .then(res => res.json())
+      .then(data => {
+        const payload = data.payload;
+        setProfile(Array.isArray(payload) ? payload[0] : payload || null);
+      })
+      .catch(err => {
+        console.error('Ошибка загрузки профиля:', err);
+        setProfile(null);
+      });
+  }, [token]);
 
-
-
-  const handleView = (user) => {
-    alert(
-      `📄 Информация о пользователе:
+  // 👁 Просмотр пользователя
+  const handleView = user => {
+    alert(`📄 Информация о пользователе:
 
 Ф.И.О: ${user['Наименование'] || '—'}
 Роль: ${user['ВидКонтрагента'] || '—'}
@@ -92,17 +78,15 @@ useEffect(() => {
 Адрес: ${user['Адрес'] || user['БизнесРегион'] || '—'}
 ИНН: ${user['ИНН'] || '—'}
 Менеджер: ${user['МенеджерКонтрагента'] || '—'}
-ID: ${user.id || '—'}
-      `
-    );
+ID: ${user.id || '—'}`);
   };
 
-  const handleDelete = async (userId) => {
-    const confirmed = window.confirm('Вы уверены, что хотите удалить пользователя?');
-    if (!confirmed) return;
+  // 🗑 Удаление пользователя
+  const handleDelete = async userId => {
+    if (!window.confirm('Вы уверены, что хотите удалить пользователя?')) return;
 
     try {
-      const response = await fetch(`http://api.dustipharma.tj:1212/api/v1/app/admin/users/${userId}`, {
+      const res = await fetch(`http://api.dustipharma.tj:1212/api/v1/app/admin/users/${userId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -110,19 +94,17 @@ ID: ${user.id || '—'}
         },
       });
 
-      if (!response.ok) {
-        throw new Error(`Ошибка удаления: ${response.status}`);
-      }
-
-      setClientUsers(prev => prev.filter(u => u.id !== userId));
-    } catch (error) {
-      console.error('Ошибка при удалении пользователя:', error);
+      if (!res.ok) throw new Error(`Ошибка удаления: ${res.status}`);
+      setUsers(prev => prev.filter(u => u.id !== userId));
+    } catch (err) {
+      console.error('Ошибка при удалении:', err);
       alert('Не удалось удалить пользователя.');
     }
   };
 
   return (
     <div className="dashboard">
+      {/* 📌 Sidebar */}
       <aside className="sidebar">
         <div>
           <div className="sidebar_logo">
@@ -147,7 +129,7 @@ ID: ${user.id || '—'}
               <div className="logo_profile">
                 <h3>{profile?.['Наименование']?.trim() || 'Имя не указано'}</h3>
                 <p>{profile?.['ВидКонтрагента']?.trim() || 'Роль не указана'}</p>
-                <button onClick={() => { logout(); navigate('/'); }} className="logout-btn">
+                <button onClick={() => { logout(); window.location.href = '/'; }} className="logout-btn">
                   🚪 Выйти
                 </button>
               </div>
@@ -156,11 +138,17 @@ ID: ${user.id || '—'}
         </div>
       </aside>
 
+      {/* 📋 Main Content */}
       <main className="content">
         <div className="root_header">
-          <div>
-            <h1>Партнёры</h1>
-          </div>
+          <h1>Партнёры</h1>
+          <input
+            type="text"
+            placeholder="Найти по имени, роли, телефону..."
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
         </div>
 
         <div className="back_color_table">
@@ -180,11 +168,11 @@ ID: ${user.id || '—'}
               {paginatedUsers.map((u, index) => (
                 <tr key={u.id || index}>
                   <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                  <td>{u['Наименование'] || '-'}</td>
-                  <td>{u['ВидКонтрагента'] || '-'}</td>
-                  <td>{u['БизнесРегион'] || u['Адрес'] || '-'}</td>
-                  <td>{u['Телефон'] || '-'}</td>
-                  <td>{u['МенеджерКонтрагента'] || '-'}</td>
+                  <td>{u['Наименование'] || '—'}</td>
+                  <td>{u['ВидКонтрагента'] || '—'}</td>
+                  <td>{u['БизнесРегион'] || u['Адрес'] || '—'}</td>
+                  <td>{u['Телефон'] || '—'}</td>
+                  <td>{u['МенеджерКонтрагента'] || '—'}</td>
                   <td style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
                     <Eye size={20} style={{ cursor: 'pointer' }} onClick={() => handleView(u)} />
                     <Trash2 size={20} color="red" style={{ cursor: 'pointer' }} onClick={() => handleDelete(u.id)} />
@@ -194,6 +182,7 @@ ID: ${user.id || '—'}
             </tbody>
           </table>
 
+          {/* 📄 Pagination */}
           <div className="pagination_controls">
             <button disabled={currentPage === 1} onClick={() => setCurrentPage(prev => prev - 1)}>
               ◀ Назад

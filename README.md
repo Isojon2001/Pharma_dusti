@@ -10,3 +10,6 @@
 npm install.
 ### 1. Для запуска React
 npm run dev.
+http://localhost:5173/
+### 1. Альтернатива
+http://localhost:4173

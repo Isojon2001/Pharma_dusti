@@ -689,6 +689,127 @@ margin-left: 10px;
   background-color: #c0392b;
 }
 
+/* Уже существующие стили */
+
+.stats-chart-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  background-color:#F7F7F7;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 30px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #2c3e50;
+}
+
+.line-chart-container {
+  flex: 1;
+  min-width: 600px;
+  background: linear-gradient(135deg, #fdfdfd, #f0f4f8);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  padding: 30px 40px;
+}
+
+.line-chart-title {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #34495e;
+  font-weight: 700;
+  font-size: 2.2rem;
+}
+
+.chart-status {
+  text-align: center;
+  margin-top: 50px;
+  color: #666;
+  font-size: 18px;
+}
+
+.chart-status.error {
+  color: red;
+}
+
+/* 🎯 Новый фильтр по дате */
+
+.date-filter {
+  margin-bottom: 30px;
+}
+
+.date-filter-label {
+  font-size: 15px;
+  color: #566573;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.date-inputs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.date-input {
+  padding: 8px 12px;
+  font-size: 15px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background-color: #ffffff;
+  color: #3498db;
+}
+
+.date-input:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 3px rgba(52, 152, 219, 0.5);
+}
+
+.arrow {
+  font-size: 18px;
+  color: #95a5a6;
+}
+
+.detailed-stats-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px 30px;
+  background: linear-gradient(135deg, #f9fafb, #e3eaf2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border-radius: 18px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #2c3e50;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 20px;
+  padding: 8px 16px;
+  font-size: 15px;
+  color: #3498db;
+  text-decoration: none;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.back-link:hover {
+  background-color: #3498db;
+  color: white;
+  border-color: #2980b9;
+}
+
+.detailed-stats-title {
+  font-weight: 700;
+  font-size: 2rem;
+  margin-bottom: 35px;
+  border-bottom: 3px solid #d1d9e6;
+  padding-bottom: 12px;
+  color: #34495e;
+}
+
+
+
 
  @media (max-width: 1439px) {
 .content{

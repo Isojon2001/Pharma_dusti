@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { LayoutGrid, Users, MoreVertical } from 'lucide-react';
+import { LayoutGrid, Users,  User,  MoreVertical } from 'lucide-react';
 import SidebarItem from '../components/SidebarItem';
 import { useAuth } from '../context/AuthContext';
 import '../index.css';
@@ -205,7 +205,7 @@ function Dashboard() {
           <p>Служба поддержки</p>
           <div className="sidebar_user">
             <div className="logo_flex">
-              <div className="logo_user"></div>
+              <div className="logo_user"><User className="user-icon"/></div>
               <div className="logo_profile">
                 <h3>{profile?.['Наименование']?.trim() || 'Менеджер не найден'}</h3>
                 <p>{profile?.['ВидКонтрагента']?.trim() || 'Филиал не указан'}</p>

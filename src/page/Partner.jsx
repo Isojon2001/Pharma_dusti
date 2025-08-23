@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { LayoutGrid, Eye, Users, Trash2 } from 'lucide-react';
+import { LayoutGrid, Eye, Users, User, Trash2 } from 'lucide-react';
 import SidebarItem from '../components/SidebarItem';
 import { useAuth } from '../context/AuthContext';
 import '../index.css';
@@ -119,7 +119,7 @@ ID: ${user.id || '—'}`);
           <p>Служба поддержки</p>
           <div className="sidebar_user">
             <div className="logo_flex">
-              <div className="logo_user"></div>
+              <div className="logo_user"><User className="user-icon"/></div>
               <div className="logo_profile">
                 <h3>{profile?.['Наименование']?.trim() || 'Имя не указано'}</h3>
                 <p>{profile?.['ВидКонтрагента']?.trim() || 'Роль не указана'}</p>

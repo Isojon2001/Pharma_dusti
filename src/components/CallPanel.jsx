@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { LayoutGrid, Users, TrendingUp } from 'lucide-react';
+import { LayoutGrid, Users, User, TrendingUp } from 'lucide-react';
 import SidebarItem from './SidebarItem';
 import StatusBadge from './StatusBadge';
 import { useNavigate } from 'react-router-dom';
@@ -33,7 +33,6 @@ function CallLogViewer() {
     return translations[val?.toLowerCase()] || normalize(val);
   };
 
-  // Загрузка профиля текущего пользователя
   useEffect(() => {
     if (!token) return;
 
@@ -74,7 +73,7 @@ function CallLogViewer() {
 
     const socket = new WebSocket('ws://10.10.10.21:8081');
 
-    socket.onopen = () => console.log('🔗 Подключено к WebSocket');
+    socket.onopen = () => console.log('Подключено к WebSocket');
 
     socket.onmessage = (event) => {
       const payload = JSON.parse(event.data);
@@ -145,7 +144,7 @@ function CallLogViewer() {
           <p>Служба поддержки</p>
           <div className="sidebar_user">
             <div className="logo_flex">
-              <div className="logo_user"></div>
+              <div className="logo_user"><User className="user-icon"/></div>
               <div className="logo_profile">
                 <h3>{profile?.['Наименование']?.trim() || 'Имя не указано'}</h3>
                 <p>{profile?.['ВидКонтрагента']?.trim() || 'Филиал не указан'}</p>

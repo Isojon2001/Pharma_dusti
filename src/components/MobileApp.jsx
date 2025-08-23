@@ -101,8 +101,8 @@ function MobileApp() {
               <div className="logo_profile">
                 <h3>{profile?.['Наименование']?.trim() || 'Имя не указано'}</h3>
                 <p>{profile?.['ВидКонтрагента']?.trim() || 'Филиал не указан'}</p>
-                <button onClick={handleLogout} className="logout-btn">🚪 Выйти</button>
               </div>
+                <button onClick={handleLogout} className="logout-btn">Выйти</button>
             </div>
           </div>
         </div>

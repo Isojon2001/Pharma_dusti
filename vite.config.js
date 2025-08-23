@@ -22,7 +22,6 @@ export default defineConfig({
       },
       output: {
         manualChunks: {
-          // Выносим крупные библиотеки в отдельный файл
           react: ['react', 'react-dom'],
         },
       },

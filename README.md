@@ -12,4 +12,5 @@ npm install.
 npm run dev.
 http://localhost:5173/
 ### 1. Альтернатива
+npm run preview
 http://localhost:4173

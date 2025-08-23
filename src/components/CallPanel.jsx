@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import '../index.css';
 
 function CallLogViewer() {
-  const { token, logout } = useAuth(); // вместо просто token
+  const { token, logout } = useAuth();
   const [profile, setProfile] = useState(null);
   const [events, setEvents] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -62,7 +62,6 @@ function CallLogViewer() {
       });
   }, [token]);
 
-  // Подключение к WebSocket и обработка звонков
   useEffect(() => {
     const saved = localStorage.getItem('callEvents');
     if (saved) {
@@ -150,10 +149,10 @@ function CallLogViewer() {
               <div className="logo_profile">
                 <h3>{profile?.['Наименование']?.trim() || 'Имя не указано'}</h3>
                 <p>{profile?.['ВидКонтрагента']?.trim() || 'Филиал не указан'}</p>
-                <button onClick={() => { logout(); navigate('/'); }} className="logout-btn">
-                  🚪 Выйти
-                </button>
               </div>
+                <button onClick={() => { logout(); navigate('/'); }} className="logout-btn">
+                Выйти
+                </button>
             </div>
           </div>
         </div>

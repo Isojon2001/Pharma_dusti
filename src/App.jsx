@@ -1,5 +1,7 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './context/AuthContext';
+
 import LoginPage from './page/LoginPage';
 import Dashboard from './page/Dashboard';
 import RoleAndRoot from './components/RoleAndRoot';
@@ -10,21 +12,22 @@ import DetailedStats from './page/DetailedStats';
 import Partner from './page/Partner';
 import CallPanel from './components/CallPanel';
 import ProtectedRoute from './components/ProtectedRoute';
-import { useAuth } from './context/AuthContext';
 import './index.css';
 
 function App() {
-  const { user } = useAuth();
+  const { token, user, isLoading } = useAuth();
+
+  if (isLoading) return null;
+
   const role =
     user?.Роль?.toLowerCase() ||
     user?.ВидКонтрагента?.toLowerCase() ||
-    user?.counterparty_type?.toLowerCase();
+    user?.counterparty_type?.toLowerCase() ||
+    '';
 
   return (
     <Routes>
       <Route path="/" element={<LoginPage />} />
-
-      {/* 🔒 Moderator — только MobileApp и CallPanel */}
       {role === 'moderator' && (
         <>
           <Route
@@ -43,7 +46,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-                    <Route
+          <Route
             path="/add-category"
             element={
               <ProtectedRoute allowedRoles={['moderator']}>
@@ -51,20 +54,59 @@ function App() {
               </ProtectedRoute>
             }
           />
-          {/* ❌ Всё остальное — редирект на /mobile */}
           <Route path="*" element={<Navigate to="/mobile" replace />} />
         </>
       )}
-
-      {/* ✅ Admin — полный доступ */}
       {role === 'admin' && (
         <>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/RoleAndRoot" element={<RoleAndRoot />} />
-          <Route path="/RoleAndRoot/add-employee" element={<AddEmployee />} />
-          <Route path="/statistics/:type" element={<DetailedStats />} />
-          <Route path="/add-category" element={<AddCategoryPage />} />
-          <Route path="/Partner" element={<Partner />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/RoleAndRoot"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <RoleAndRoot />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/RoleAndRoot/add-employee"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AddEmployee />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/statistics/:type"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <DetailedStats />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/add-category"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AddCategoryPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/Partner"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <Partner />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/mobile"
             element={
@@ -83,16 +125,56 @@ function App() {
           />
         </>
       )}
-
-      {/* 🧾 Остальные роли — только бизнес-панели */}
-      {role !== 'admin' && role !== 'moderator' && (
+      {token && role !== 'admin' && role !== 'moderator' && (
         <>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/RoleAndRoot" element={<RoleAndRoot />} />
-          <Route path="/RoleAndRoot/add-employee" element={<AddEmployee />} />
-          <Route path="/statistics/:type" element={<DetailedStats />} />
-          <Route path="/add-category" element={<AddCategoryPage />} />
-          <Route path="/Partner" element={<Partner />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={[role]}>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/RoleAndRoot"
+            element={
+              <ProtectedRoute allowedRoles={[role]}>
+                <RoleAndRoot />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/RoleAndRoot/add-employee"
+            element={
+              <ProtectedRoute allowedRoles={[role]}>
+                <AddEmployee />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/statistics/:type"
+            element={
+              <ProtectedRoute allowedRoles={[role]}>
+                <DetailedStats />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/add-category"
+            element={
+              <ProtectedRoute allowedRoles={[role]}>
+                <AddCategoryPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/Partner"
+            element={
+              <ProtectedRoute allowedRoles={[role]}>
+                <Partner />
+              </ProtectedRoute>
+            }
+          />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </>
       )}

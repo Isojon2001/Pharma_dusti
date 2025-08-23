@@ -42,8 +42,8 @@ function Dashboard() {
   };
 
   const handleLogout = () => {
-    logout();         // ✅ сбрасывает токен и пользователя
-    navigate('/');    // ✅ перенаправляет на страницу входа
+    logout();
+    navigate('/');
   };
 
   useEffect(() => {
@@ -109,7 +109,7 @@ function Dashboard() {
 
     const socket = new WebSocket('ws://10.10.10.21:8081');
 
-    socket.onopen = () => console.log('✅ WebSocket открыт');
+    socket.onopen = () => console.log('WebSocket открыт');
 
     socket.onmessage = (event) => {
       try {
@@ -209,8 +209,8 @@ function Dashboard() {
               <div className="logo_profile">
                 <h3>{profile?.['Наименование']?.trim() || 'Менеджер не найден'}</h3>
                 <p>{profile?.['ВидКонтрагента']?.trim() || 'Филиал не указан'}</p>
-                <button onClick={handleLogout} className="logout-btn">🚪 Выйти</button>
               </div>
+                <button onClick={handleLogout} className="logout-btn">Выйти</button>
             </div>
           </div>
         </div>

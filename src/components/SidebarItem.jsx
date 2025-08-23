@@ -9,12 +9,11 @@ function SidebarItem({ icon: Icon, label, to }) {
     user?.ВидКонтрагента?.toLowerCase() ||
     user?.counterparty_type?.toLowerCase();
 
-  // 🔒 Скрываем всё, кроме mobile и calls для moderator
   const isModerator = role === 'moderator';
   const allowedForModerator = ['/mobile', '/calls'];
 
   if (isModerator && !allowedForModerator.includes(to)) {
-    return null; // ❌ не рендерим этот пункт
+    return null;
   }
 
   return (

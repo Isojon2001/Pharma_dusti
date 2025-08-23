@@ -5,23 +5,26 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const [user, setUser] = useState(null);
-
-  // Инициализация при загрузке
+  const [isLoading, setIsLoading] = useState(true);
+  
   useEffect(() => {
     const storedToken = localStorage.getItem('accessToken');
     const storedUser = localStorage.getItem('user');
 
     if (storedToken) setToken(storedToken);
+
     if (storedUser) {
       try {
-        setUser(JSON.parse(storedUser));
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
       } catch {
         localStorage.removeItem('user');
       }
     }
+
+    setIsLoading(false);
   }, []);
 
-  // Синхронизация при изменении
   useEffect(() => {
     if (token) {
       localStorage.setItem('accessToken', token);
@@ -47,7 +50,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ token, user, login, logout }}>
+    <AuthContext.Provider value={{ token, user, login, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

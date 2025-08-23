@@ -136,6 +136,7 @@ input::placeholder{
 .logo_flex{
 	display: flex;
 	align-items: center;
+	gap: 10px;
 }
 .logo_profile p{
 	color: #0B9D9F;

@@ -42,7 +42,6 @@ function RoleAndRoot() {
       });
   }, [token]);
 
-  // Загрузка списка пользователей
   const fetchUsers = async () => {
     if (!token) return;
 
@@ -128,10 +127,10 @@ function RoleAndRoot() {
               <div className="logo_profile">
                 <h3>{profile?.['Наименование']?.trim() || 'Менеджер не найден'}</h3>
                 <p>{profile?.['ВидКонтрагента']?.trim() || 'Филиал не указан'}</p>
-                <button onClick={() => { logout(); navigate('/'); }} className="logout-btn">
-                  🚪 Выйти
-                </button>
               </div>
+                <button onClick={() => { logout(); navigate('/'); }} className="logout-btn">
+                  Выйти
+                </button>
             </div>
           </div>
         </div>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import axios from 'axios';
-import { useAuth } from '../context/AuthContext'; // 👈 добавь, если ещё не подключено
+import { useAuth } from '../context/AuthContext';
 
 function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -10,7 +10,7 @@ function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { login: loginByToken } = useAuth(); // 👈 получаем login из контекста
+  const { login: loginByToken } = useAuth();
 
   const togglePassword = () => setShowPassword((prev) => !prev);
 
@@ -30,15 +30,9 @@ function LoginPage() {
         setError('Некорректный ответ от сервера');
         return;
       }
-
-      // ✅ сохраняем в localStorage
       localStorage.setItem('accessToken', token);
       localStorage.setItem('user', JSON.stringify(user));
-
-      // ✅ обновляем контекст
       loginByToken(user, token);
-
-      // ✅ переходим на dashboard
       navigate('/dashboard');
     } catch (err) {
       console.error('Ошибка входа:', err);

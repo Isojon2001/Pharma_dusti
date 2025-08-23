@@ -13,7 +13,6 @@ function Partner() {
 
   const itemsPerPage = 6;
 
-  // 🔍 Поиск
   const filteredUsers = users.filter(user => {
     const term = searchTerm.toLowerCase();
     return (
@@ -30,7 +29,6 @@ function Partner() {
     currentPage * itemsPerPage
   );
 
-  // 📦 Загрузка всех пользователей
   useEffect(() => {
     if (!token) return;
 
@@ -47,7 +45,6 @@ function Partner() {
       .catch(err => console.error('Ошибка загрузки пользователей:', err));
   }, [token]);
 
-  // 👤 Загрузка профиля текущего пользователя
   useEffect(() => {
     if (!token) return;
 
@@ -68,7 +65,6 @@ function Partner() {
       });
   }, [token]);
 
-  // 👁 Просмотр пользователя
   const handleView = user => {
     alert(`📄 Информация о пользователе:
 
@@ -81,7 +77,6 @@ function Partner() {
 ID: ${user.id || '—'}`);
   };
 
-  // 🗑 Удаление пользователя
   const handleDelete = async userId => {
     if (!window.confirm('Вы уверены, что хотите удалить пользователя?')) return;
 
@@ -104,7 +99,6 @@ ID: ${user.id || '—'}`);
 
   return (
     <div className="dashboard">
-      {/* 📌 Sidebar */}
       <aside className="sidebar">
         <div>
           <div className="sidebar_logo">
@@ -129,16 +123,15 @@ ID: ${user.id || '—'}`);
               <div className="logo_profile">
                 <h3>{profile?.['Наименование']?.trim() || 'Имя не указано'}</h3>
                 <p>{profile?.['ВидКонтрагента']?.trim() || 'Роль не указана'}</p>
-                <button onClick={() => { logout(); window.location.href = '/'; }} className="logout-btn">
-                  🚪 Выйти
-                </button>
               </div>
+                <button onClick={() => { logout(); window.location.href = '/'; }} className="logout-btn">
+                  Выйти
+                </button>
             </div>
           </div>
         </div>
       </aside>
 
-      {/* 📋 Main Content */}
       <main className="content">
         <div className="root_header">
           <h1>Партнёры</h1>
@@ -170,9 +163,9 @@ ID: ${user.id || '—'}`);
                   <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
                   <td>{u['Наименование'] || '—'}</td>
                   <td>{u['ВидКонтрагента'] || '—'}</td>
-                  <td>{u['БизнесРегион'] || u['Адрес'] || '—'}</td>
+                  <td>{u['БизнесРегион'] || u['Адрес'] || 'Менеджер неизвестен'}</td>
                   <td>{u['Телефон'] || '—'}</td>
-                  <td>{u['МенеджерКонтрагента'] || '—'}</td>
+                  <td>{u['МенеджерКонтрагента'] || 'Менеджер неизвестен'}</td>
                   <td style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
                     <Eye size={20} style={{ cursor: 'pointer' }} onClick={() => handleView(u)} />
                     <Trash2 size={20} color="red" style={{ cursor: 'pointer' }} onClick={() => handleDelete(u.id)} />
@@ -182,7 +175,6 @@ ID: ${user.id || '—'}`);
             </tbody>
           </table>
 
-          {/* 📄 Pagination */}
           <div className="pagination_controls">
             <button disabled={currentPage === 1} onClick={() => setCurrentPage(prev => prev - 1)}>
               ◀ Назад

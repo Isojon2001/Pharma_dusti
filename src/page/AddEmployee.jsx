@@ -43,7 +43,7 @@ function AddEmployee() {
     }
 
     if (!token) {
-      setError('❌ Токен не найден. Авторизуйтесь заново.');
+      setError('Токен не найден. Авторизуйтесь заново.');
       return;
     }
 
@@ -71,12 +71,12 @@ function AddEmployee() {
         throw new Error(message);
       }
 
-      setSuccess('✅ Сотрудник успешно добавлен');
+      setSuccess('Сотрудник успешно добавлен');
       navigate('/RoleAndRoot', { state: { refresh: true } });
 
     } catch (err) {
       console.error('Ошибка при добавлении:', err.message);
-      setError(`❌ ${err.message}`);
+      setError(`${err.message}`);
     }
   };
 

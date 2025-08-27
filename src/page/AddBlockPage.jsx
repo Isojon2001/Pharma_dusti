@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Breadcrumb from '../components/Breadcrumb';
+import FileInputFixedStatus from '../components/FileInputFixedStatus';
 
-function AddCategoryPage() {
+function AddBlockPage() {
   const navigate = useNavigate();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -11,7 +12,7 @@ function AddCategoryPage() {
 
   const handleAddCategory = async () => {
     if (!name.trim()) {
-      setMessage('Введите название категории');
+      setMessage('Введите название Блока');
       return;
     }
 
@@ -34,16 +35,16 @@ function AddCategoryPage() {
       );
 
       if (response.data.code === 200) {
-        setMessage('Категория успешно добавлена');
+        setMessage('Блок успешно добавлена');
         setTimeout(() => {
           navigate('/mobile');
         }, 1500);
       } else {
-        setMessage('Ошибка при добавлении категории');
+        setMessage('Ошибка при добавлении блока');
       }
     } catch (error) {
       console.error('Ошибка:', error.response?.data || error.message);
-      setMessage('Ошибка при добавлении категории');
+      setMessage('Ошибка при добавлении блока');
     }
   };
 
@@ -58,7 +59,7 @@ function AddCategoryPage() {
       />
       <div className="add-category-forms">
         <div className="add-category-paragraph">
-          <h2>Управление категориями</h2>
+          <h2>Управление Блоками</h2>
           <div className="category_btn">
             <button type="button" onClick={() => navigate('/mobile')}>Отменить</button>
             <button type="button" onClick={handleAddCategory}>Сохранить</button>
@@ -69,7 +70,7 @@ function AddCategoryPage() {
             <p>Наименование</p>
             <input
               type="text"
-              placeholder="Название категории"
+              placeholder="Название Блока"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
@@ -84,10 +85,16 @@ function AddCategoryPage() {
             />
           </div>
           {message && <p className="message">{message}</p>}
+          <div className="uploading_poster">
+          <h4>Загрузить постер</h4>
+          <FileInputFixedStatus id="poster1" label="Выбрать файл 1" />
+          <h4>Загрузите Файл</h4>
+          <FileInputFixedStatus id="poster2" label="Выбрать файл 2" />
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-export default AddCategoryPage;
+export default AddBlockPage;

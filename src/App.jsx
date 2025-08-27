@@ -8,6 +8,7 @@ import RoleAndRoot from './components/RoleAndRoot';
 import AddEmployee from './page/AddEmployee';
 import MobileApp from './components/MobileApp';
 import AddCategoryPage from './page/AddCategoryPage';
+import AddBlockPage from './page/AddBlockPage';
 import DetailedStats from './page/DetailedStats';
 import Partner from './page/Partner';
 import CallPanel from './components/CallPanel';
@@ -54,6 +55,14 @@ function App() {
               </ProtectedRoute>
             }
           />
+                    <Route
+            path="/add-block"
+            element={
+              <ProtectedRoute allowedRoles={['moderator']}>
+                <AddBlockPage />
+              </ProtectedRoute>
+            }
+          />
           <Route path="*" element={<Navigate to="/mobile" replace />} />
         </>
       )}
@@ -96,6 +105,14 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <AddCategoryPage />
+              </ProtectedRoute>
+            }
+          />
+                              <Route
+            path="/add-block"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AddBlockPage />
               </ProtectedRoute>
             }
           />

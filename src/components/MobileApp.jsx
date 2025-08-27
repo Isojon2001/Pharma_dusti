@@ -132,7 +132,7 @@ function MobileApp() {
               <h4>Управление блоками</h4>
               <div className="panel_btn">
                 <button type="button">История</button>
-                <button type="button" onClick={() => navigate('/add-category')}>Добавить</button>
+                <button type="button" onClick={() => navigate('/add-block')}>Добавить</button>
               </div>
             </div>
           </div>

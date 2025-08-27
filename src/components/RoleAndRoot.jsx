@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { LayoutGrid, Users, User, Plus, Edit, Trash2 } from 'lucide-react';
 import SidebarItem from './SidebarItem';
+import RoleModal from './RoleModal';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import '../index.css';
@@ -10,6 +11,7 @@ function RoleAndRoot() {
   const [profile, setProfile] = useState(null);
   const [users, setUsers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [editingUser, setEditingUser] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -100,9 +102,31 @@ function RoleAndRoot() {
     }
   };
 
+  const handleRoleUpdate = async (userId, newRole) => {
+    try {
+      const response = await fetch('http://api.dustipharma.tj:1212/api/v1/app/admin/users', {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user_id: userId, role: newRole }),
+      });
+
+      if (!response.ok) throw new Error(`Ошибка обновления: ${response.status}`);
+
+      setUsers(prev =>
+        prev.map(u => (u.id === userId ? { ...u, Роль: newRole } : u))
+      );
+      setEditingUser(null);
+    } catch (error) {
+      console.error('Ошибка при обновлении роли:', error);
+      alert('Не удалось обновить роль.');
+    }
+  };
+
   return (
     <div className="dashboard">
-      {/* Sidebar */}
       <aside className="sidebar">
         <div>
           <div className="sidebar_logo">
@@ -128,15 +152,14 @@ function RoleAndRoot() {
                 <h3>{profile?.['Наименование']?.trim() || 'Менеджер не найден'}</h3>
                 <p>{profile?.['ВидКонтрагента']?.trim() || 'Филиал не указан'}</p>
               </div>
-                <button onClick={() => { logout(); navigate('/'); }} className="logout-btn">
-                  Выйти
-                </button>
+              <button onClick={() => { logout(); navigate('/'); }} className="logout-btn">
+                Выйти
+              </button>
             </div>
           </div>
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className="content">
         <div className="root_header">
           <div>
@@ -169,8 +192,13 @@ function RoleAndRoot() {
                   <td>{u['Роль'] || u['ВидКонтрагента'] || '-'}</td>
                   <td>{u['Телефон'] || '-'}</td>
                   <td style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                    <Edit size={20} style={{ cursor: 'pointer' }} onClick={() => navigate(`/edit-user/${u.id}`)} />
-                    <Trash2 size={20} color="red" style={{ cursor: 'pointer' }} onClick={() => handleDelete(u.id)} />
+                    <Edit size={20} style={{ cursor: 'pointer' }} onClick={() => setEditingUser(u)} />
+                                          <Trash2
+                      size={20}
+                      color="red"
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => handleDelete(u.id)}
+                    />
                   </td>
                 </tr>
               ))}
@@ -187,6 +215,15 @@ function RoleAndRoot() {
               Вперёд ▶
             </button>
           </div>
+
+          {/* Модальное окно редактирования роли */}
+          {editingUser && (
+            <RoleModal
+              user={editingUser}
+              onClose={() => setEditingUser(null)}
+              onSave={handleRoleUpdate}
+            />
+          )}
         </div>
       </main>
       <Outlet />

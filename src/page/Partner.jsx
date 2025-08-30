@@ -11,7 +11,8 @@ function Partner() {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
-  const itemsPerPage = 6;
+  const [size, setSize] = useState(50);
+  const itemsPerPage = 7;
 
   const filteredUsers = users.filter(user => {
     const term = searchTerm.toLowerCase();
@@ -28,11 +29,10 @@ function Partner() {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-
   useEffect(() => {
     if (!token) return;
 
-    fetch('http://api.dustipharma.tj:1212/api/v1/app/admin/users?page=1&size=10000', {
+    fetch(`http://api.dustipharma.tj:1212/api/v1/app/admin/users?page=1&size=${size}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -43,8 +43,9 @@ function Partner() {
         setUsers(data.payload || []);
       })
       .catch(err => console.error('Ошибка загрузки пользователей:', err));
-  }, [token]);
+  }, [token, size]); // size в зависимостях — при изменении догружаем больше
 
+  // Загрузка профиля
   useEffect(() => {
     if (!token) return;
 
@@ -119,14 +120,14 @@ ID: ${user.id || '—'}`);
           <p>Служба поддержки</p>
           <div className="sidebar_user">
             <div className="logo_flex">
-              <div className="logo_user"><User className="user-icon"/></div>
+              <div className="logo_user"><User className="user-icon" /></div>
               <div className="logo_profile">
                 <h3>{profile?.['Наименование']?.trim() || 'Имя не указано'}</h3>
                 <p>{profile?.['ВидКонтрагента']?.trim() || 'Роль не указана'}</p>
               </div>
-                <button onClick={() => { logout(); window.location.href = '/'; }} className="logout-btn">
-                  Выйти
-                </button>
+              <button onClick={() => { logout(); window.location.href = '/'; }} className="logout-btn">
+                Выйти
+              </button>
             </div>
           </div>
         </div>
@@ -176,11 +177,22 @@ ID: ${user.id || '—'}`);
           </table>
 
           <div className="pagination_controls">
-            <button disabled={currentPage === 1} onClick={() => setCurrentPage(prev => prev - 1)}>
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(prev => prev - 1)}
+            >
               ◀ Назад
             </button>
+
             <span>Страница {currentPage} из {totalPages}</span>
-            <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(prev => prev + 1)}>
+
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => {
+                setCurrentPage(prev => prev + 1);
+                setSize(prev => prev + 20);
+              }}
+            >
               Вперёд ▶
             </button>
           </div>

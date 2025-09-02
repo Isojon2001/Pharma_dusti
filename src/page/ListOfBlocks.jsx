@@ -175,7 +175,6 @@ const ListOfBlocks = () => {
           <table className="banner-table">
             <thead>
               <tr>
-                <th>Изображение</th>
                 <th>Наименование</th>
                 <th>Описание</th>
                 <th>Дата создания</th>
@@ -188,7 +187,7 @@ const ListOfBlocks = () => {
                 const imgUrl = `${API_BASE_URL}/uploads/${poster_path}`; // путь изменён
                 return (
                   <tr key={id}>
-                    <td>
+                    <td className='img-cell'>
                       <img
                         src={imgUrl}
                         alt={title}
@@ -198,8 +197,8 @@ const ListOfBlocks = () => {
                           e.target.src = 'https://placehold.co/120x80?text=No+Image';
                         }}
                       />
-                    </td>
                     <td>{title}</td>
+                    </td>
                     <td>{description}</td>
                     <td>{new Date(created_at).toLocaleDateString('ru-RU')}</td>
                     <td>{new Date(updated_at).toLocaleDateString('ru-RU')}</td>

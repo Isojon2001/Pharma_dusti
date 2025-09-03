@@ -187,17 +187,19 @@ const ListOfBlocks = () => {
                 const imgUrl = `${API_BASE_URL}/uploads/${poster_path}`; // путь изменён
                 return (
                   <tr key={id}>
-                    <td className='img-cell'>
-                      <img
-                        src={imgUrl}
-                        alt={title}
-                        className="banner-img"
-                        onError={(e) => {
-                          e.target.onerror = null;
-                          e.target.src = 'https://placehold.co/120x80?text=No+Image';
-                        }}
-                      />
-                    <td>{title}</td>
+                    <td className="img-cell">
+                      <div className="img-cell">
+                        <img
+                          src={imgUrl}
+                          alt={title}
+                          className="banner-img"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = 'https://placehold.co/120x80?text=No+Image';
+                          }}
+                        />
+                        <span>{title}</span>
+                      </div>
                     </td>
                     <td>{description}</td>
                     <td>{new Date(created_at).toLocaleDateString('ru-RU')}</td>

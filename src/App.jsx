@@ -27,9 +27,13 @@ function App() {
     user?.counterparty_type?.toLowerCase() ||
     '';
 
+  const isClient = role === 'клиент';
+  const isAllowed = token && !['admin', 'moderator', 'клиент'].includes(role);
+
   return (
     <Routes>
       <Route path="/" element={<LoginPage />} />
+
       {role === 'moderator' && (
         <>
           <Route
@@ -56,7 +60,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-                    <Route
+          <Route
             path="/add-block"
             element={
               <ProtectedRoute allowedRoles={['moderator']}>
@@ -64,7 +68,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-           <Route
+          <Route
             path="/list-of-blocks"
             element={
               <ProtectedRoute allowedRoles={['moderator']}>
@@ -75,6 +79,7 @@ function App() {
           <Route path="*" element={<Navigate to="/mobile" replace />} />
         </>
       )}
+
       {role === 'admin' && (
         <>
           <Route
@@ -117,7 +122,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-                              <Route
+          <Route
             path="/add-block"
             element={
               <ProtectedRoute allowedRoles={['admin']}>
@@ -125,7 +130,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-                     <Route
+          <Route
             path="/list-of-blocks"
             element={
               <ProtectedRoute allowedRoles={['admin']}>
@@ -159,7 +164,8 @@ function App() {
           />
         </>
       )}
-      {token && role !== 'admin' && role !== 'moderator' && (
+
+      {isAllowed && (
         <>
           <Route
             path="/dashboard"
@@ -201,7 +207,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-                     <Route
+          <Route
             path="/list-of-blocks"
             element={
               <ProtectedRoute allowedRoles={[role]}>
@@ -219,6 +225,10 @@ function App() {
           />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </>
+      )}
+
+      {token && isClient && (
+        <Route path="*" element={<Navigate to="/" replace />} />
       )}
     </Routes>
   );

@@ -107,7 +107,7 @@ function Dashboard() {
       }
     }
 
-    const socket = new WebSocket('ws://10.10.10.21:8082');
+    const socket = new WebSocket('wss://10.10.10.21:8082');
 
     socket.onopen = () => console.log('WebSocket открыт');
 

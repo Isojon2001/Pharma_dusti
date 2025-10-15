@@ -55,7 +55,7 @@ function AddEmployee() {
     };
 
     try {
-      const response = await fetch('http://api.dustipharma.tj:1212/api/v1/app/admin/users', {
+      const response = await fetch('https://api.dustipharma.tj:1212/api/v1/app/admin/users', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,

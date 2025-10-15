@@ -21,7 +21,7 @@ function RoleAndRoot() {
 
   useEffect(() => {  
     if (!token) return;  
-    fetch('http://api.dustipharma.tj:1212/api/v1/app/profile/users', {  
+    fetch('https://api.dustipharma.tj:1212/api/v1/app/profile/users', {  
       headers: {  
         Authorization: `Bearer ${token}`,  
         'Content-Type': 'application/json',  
@@ -47,14 +47,14 @@ const fetchUsers = async () => {
   if (!token) return;
 
   try {
-    const adminResponse = await fetch('http://api.dustipharma.tj:1212/api/v1/app/admin/users?counterpartyType=admin', {
+    const adminResponse = await fetch('https://api.dustipharma.tj:1212/api/v1/app/admin/users?counterpartyType=admin', {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     });
 
-    const moderatorResponse = await fetch('http://api.dustipharma.tj:1212/api/v1/app/admin/users?counterpartyType=moderator', {
+    const moderatorResponse = await fetch('https://api.dustipharma.tj:1212/api/v1/app/admin/users?counterpartyType=moderator', {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -99,7 +99,7 @@ const fetchUsers = async () => {
     if (!confirmDelete) return;  
 
     try {  
-      const response = await fetch(`http://api.dustipharma.tj:1212/api/v1/app/admin/users/${id}`, {  
+      const response = await fetch(`https://api.dustipharma.tj:1212/api/v1/app/admin/users/${id}`, {  
         method: 'DELETE',  
         headers: {  
           Authorization: `Bearer ${token}`,  
@@ -117,7 +117,7 @@ const fetchUsers = async () => {
 
   const handleRoleUpdate = async (userId, newRole) => {  
     try {  
-      const response = await fetch('http://api.dustipharma.tj:1212/api/v1/app/admin/users', {  
+      const response = await fetch('https://api.dustipharma.tj:1212/api/v1/app/admin/users', {  
         method: 'PUT',  
         headers: {  
           Authorization: `Bearer ${token}`,  

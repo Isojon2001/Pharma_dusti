@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import Breadcrumb from '../components/Breadcrumb';
 import '../index.css';
 
-const API_BASE_URL = 'http://api.dustipharma.tj:1212/api/v1';
+const API_BASE_URL = 'https://api.dustipharma.tj:1212/api/v1';
 
 const FileInput = ({ label, accept, onFileChange }) => {
   const [fileName, setFileName] = useState('');
@@ -38,7 +38,6 @@ const FileInput = ({ label, accept, onFileChange }) => {
   );
 };
 
-// Функция для корректного формирования URL изображения
 const getImageUrl = (poster_path) => {
   if (!poster_path) return 'https://placehold.co/120x80?text=No+Image';
 
@@ -46,10 +45,10 @@ const getImageUrl = (poster_path) => {
     poster_path.startsWith('/api/uploads/') ||
     poster_path.startsWith('/uploads/')
   ) {
-    return `http://api.dustipharma.tj:1212${poster_path}`;
+    return `https://api.dustipharma.tj:1212${poster_path}`;
   }
 
-  return `http://api.dustipharma.tj:1212/api/uploads/${poster_path}`;
+  return `https://api.dustipharma.tj:1212/api/uploads/${poster_path}`;
 };
 
 const ListOfBlocks = () => {

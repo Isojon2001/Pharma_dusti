@@ -49,7 +49,7 @@ function Dashboard() {
   useEffect(() => {
     if (!token) return;
 
-    fetch('http://api.dustipharma.tj:1212/api/v1/app/profile/users', {
+    fetch('https://api.dustipharma.tj:1212/api/v1/app/profile/users', {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -74,7 +74,7 @@ function Dashboard() {
   useEffect(() => {
     if (!token) return;
 
-    fetch('http://api.dustipharma.tj:1212/api/v1/app/admin/users', {
+    fetch('https://api.dustipharma.tj:1212/api/v1/app/admin/users', {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -151,7 +151,7 @@ function Dashboard() {
   useEffect(() => {
     if (!token) return;
 
-    axios.get('http://api.dustipharma.tj:1212/api/v1/app/admin/statistics', {
+    axios.get('https://api.dustipharma.tj:1212/api/v1/app/admin/statistics', {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => setStats(res.data.payload))

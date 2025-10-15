@@ -21,7 +21,7 @@ function StatsBarChart({ onStatsExtract }) {
       setError(null);
 
       const token = localStorage.getItem('accessToken');
-      const res = await axios.get(`http://api.dustipharma.tj:1212/api/v1/app/admin/statistics/`, {
+      const res = await axios.get(`https://api.dustipharma.tj:1212/api/v1/app/admin/statistics/`, {
         headers: { Authorization: `Bearer ${token}` },
         params,
       });

@@ -969,6 +969,11 @@ font-size: 16px;
   color: red;
 }
 
+.error_login{
+	color: red !important;
+	justify-content: center;
+}
+
 .banner-table {
   width: 100%;
 }

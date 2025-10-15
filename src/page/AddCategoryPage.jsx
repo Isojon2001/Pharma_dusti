@@ -23,7 +23,7 @@ function AddCategoryPage() {
       formData.append('key', name.trim().toLowerCase().replace(/\s+/g, '-'));
 
       const response = await axios.post(
-        'http://api.dustipharma.tj:1212/api/v1/app/categories',
+        'https://api.dustipharma.tj:1212/api/v1/app/categories',
         formData,
         {
           headers: {

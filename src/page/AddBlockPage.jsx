@@ -37,7 +37,7 @@ const handleAddBanner = async () => {
     formData.append('file', file);
 
     const response = await axios.post(
-      'http://api.dustipharma.tj:1212/api/v1/app/admin/banners',
+      'https://api.dustipharma.tj:1212/api/v1/app/admin/banners',
       formData,
       {
         headers: {
@@ -52,14 +52,13 @@ const handleAddBanner = async () => {
     if (code === 200 || code === 201) {
       setMessage('Баннер успешно добавлен');
 
-      // 👉 Выводим путь к изображению
       const posterPath = payload?.data?.poster_path;
       if (posterPath) {
-        const imgUrl = `http://api.dustipharma.tj:1212/api/v1/files/${posterPath}`;
-        console.log('✅ Изображение успешно загружено:');
+        const imgUrl = `https://api.dustipharma.tj:1212/api/v1/files/${posterPath}`;
+        console.log('Изображение успешно загружено:');
         console.log('URL изображения:', imgUrl);
       } else {
-        console.warn('⚠️ Сервер не вернул путь к изображению (poster_path)');
+        console.warn('Сервер не вернул путь к изображению (poster_path)');
       }
 
       setTimeout(() => {

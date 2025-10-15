@@ -21,7 +21,7 @@ function MobileApp() {
   useEffect(() => {
     if (!token) return;
 
-    fetch('http://api.dustipharma.tj:1212/api/v1/app/profile/users', {
+    fetch('https://api.dustipharma.tj:1212/api/v1/app/profile/users', {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -46,7 +46,7 @@ function MobileApp() {
   const fetchCategories = async () => {
     try {
       const response = await axios.get(
-        'http://api.dustipharma.tj:1212/api/v1/app/categories/all',
+        'https://api.dustipharma.tj:1212/api/v1/app/categories/all',
         {
           headers: {
             Authorization: `Bearer ${token}`,

@@ -32,7 +32,7 @@ function Partner() {
   useEffect(() => {
     if (!token) return;
 
-    fetch(`http://api.dustipharma.tj:1212/api/v1/app/admin/users?page=1&size=${size}`, {
+    fetch(`https://api.dustipharma.tj:1212/api/v1/app/admin/users?page=1&size=${size}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -49,7 +49,7 @@ function Partner() {
   useEffect(() => {
     if (!token) return;
 
-    fetch('http://api.dustipharma.tj:1212/api/v1/app/profile/users', {
+    fetch('https://api.dustipharma.tj:1212/api/v1/app/profile/users', {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -67,7 +67,7 @@ function Partner() {
   }, [token]);
 
   const handleView = user => {
-    alert(`📄 Информация о пользователе:
+    alert(`Информация о пользователе:
 
 Ф.И.О: ${user['Наименование'] || '—'}
 Роль: ${user['ВидКонтрагента'] || '—'}
@@ -82,7 +82,7 @@ ID: ${user.id || '—'}`);
     if (!window.confirm('Вы уверены, что хотите удалить пользователя?')) return;
 
     try {
-      const res = await fetch(`http://api.dustipharma.tj:1212/api/v1/app/admin/users/${userId}`, {
+      const res = await fetch(`https://api.dustipharma.tj:1212/api/v1/app/admin/users/${userId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,

@@ -20,7 +20,7 @@ function LoginPage() {
 
     try {
       const response = await axios.post(
-        'http://api.dustipharma.tj:1212/api/v1/app/auth/sign-in',
+        'https://api.dustipharma.tj:1212/api/v1/app/auth/sign-in',
         { login, password }
       );
 
@@ -85,7 +85,7 @@ function LoginPage() {
             <a href="#">Забыли пароль?</a>
           </div>
 
-          {error && <p style={{ color: 'red' }}>{error}</p>}
+          {error && <p className='error_login'>{error}</p>}
 
           <button type="submit">Войти</button>
         </div>

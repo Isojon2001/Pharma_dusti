@@ -10,29 +10,30 @@ function Partner() {
   const [profile, setProfile] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [size, setSize] = useState(7);
 
-  const [size, setSize] = useState(50);
-  const itemsPerPage = 7;
+  const getSearchParam = (term) => {
+    const cleaned = term.trim();
+    const isPhone = /^\d{6,}$/.test(cleaned);
+    return isPhone ? { numberPhone: cleaned } : { fullName: cleaned };
+  };
 
-  const filteredUsers = users.filter(user => {
-    const term = searchTerm.toLowerCase();
-    return (
-      user['Наименование']?.toLowerCase().includes(term) ||
-      user['ВидКонтрагента']?.toLowerCase().includes(term) ||
-      user['Телефон']?.toLowerCase().includes(term) ||
-      user['МенеджерКонтрагента']?.toLowerCase().includes(term)
-    );
-  });
-
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
-  const paginatedUsers = filteredUsers.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
   useEffect(() => {
     if (!token) return;
 
-    fetch(`https://api.dustipharma.tj:1212/api/v1/app/admin/users?page=1&size=${size}`, {
+    const params = new URLSearchParams();
+    params.append('page', currentPage.toString());
+    params.append('size', size.toString());
+
+    const term = searchTerm.trim();
+    if (term) {
+      const searchParam = getSearchParam(term);
+      Object.entries(searchParam).forEach(([key, value]) => {
+        params.append(key, value);
+      });
+    }
+
+    fetch(`https://api.dustipharma.tj:1212/api/v1/app/admin/users?${params.toString()}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -43,9 +44,8 @@ function Partner() {
         setUsers(data.payload || []);
       })
       .catch(err => console.error('Ошибка загрузки пользователей:', err));
-  }, [token, size]); // size в зависимостях — при изменении догружаем больше
+  }, [token, searchTerm, currentPage, size]);
 
-  // Загрузка профиля
   useEffect(() => {
     if (!token) return;
 
@@ -136,9 +136,12 @@ ID: ${user.id || '—'}`);
           <h1>Партнёры</h1>
           <input
             type="text"
-            placeholder="Найти по имени, роли, телефону..."
+            placeholder="Поиск по имени или телефону"
             value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
+            onChange={e => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
             className="search-input"
           />
         </div>
@@ -157,14 +160,14 @@ ID: ${user.id || '—'}`);
               </tr>
             </thead>
             <tbody>
-              {paginatedUsers.map((u, index) => (
+              {users.map((u, index) => (
                 <tr key={u.id || index}>
-                  <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                  <td>{(currentPage - 1) * size + index + 1}</td>
                   <td>{u['Наименование'] || '—'}</td>
                   <td>{u['ВидКонтрагента'] || '—'}</td>
-                  <td>{u['БизнесРегион'] || u['Адрес'] || 'Менеджер неизвестен'}</td>
+                  <td>{u['БизнесРегион'] || u['Адрес'] || '—'}</td>
                   <td>{u['Телефон'] || '—'}</td>
-                  <td>{u['МенеджерКонтрагента'] || 'Менеджер неизвестен'}</td>
+                  <td>{u['МенеджерКонтрагента'] || '—'}</td>
                   <td style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
                     <Eye size={20} style={{ cursor: 'pointer' }} onClick={() => handleView(u)} />
                     <Trash2 size={20} color="red" style={{ cursor: 'pointer' }} onClick={() => handleDelete(u.id)} />
@@ -182,14 +185,10 @@ ID: ${user.id || '—'}`);
               ◀ Назад
             </button>
 
-            <span>Страница {currentPage} из {totalPages}</span>
+            <span>Страница {currentPage}</span>
 
             <button
-              disabled={currentPage === totalPages}
-              onClick={() => {
-                setCurrentPage(prev => prev + 1);
-                setSize(prev => prev + 20);
-              }}
+              onClick={() => setCurrentPage(prev => prev + 1)}
             >
               Вперёд ▶
             </button>

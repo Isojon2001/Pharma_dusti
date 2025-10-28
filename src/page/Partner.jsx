@@ -17,34 +17,35 @@ function Partner() {
     const isPhone = /^\d{6,}$/.test(cleaned);
     return isPhone ? { numberPhone: cleaned } : { fullName: cleaned };
   };
+useEffect(() => {
+  if (!token) return;
 
-  useEffect(() => {
-    if (!token) return;
+  const params = new URLSearchParams();
+  params.append('page', currentPage.toString());
+  params.append('size', size.toString());
+  params.append('counterpartyType', 'Клиент');
 
-    const params = new URLSearchParams();
-    params.append('page', currentPage.toString());
-    params.append('size', size.toString());
+  const term = searchTerm.trim();
+  if (term) {
+    const searchParam = getSearchParam(term);
+    Object.entries(searchParam).forEach(([key, value]) => {
+      params.append(key, value);
+    });
+  }
 
-    const term = searchTerm.trim();
-    if (term) {
-      const searchParam = getSearchParam(term);
-      Object.entries(searchParam).forEach(([key, value]) => {
-        params.append(key, value);
-      });
-    }
-
-    fetch(`https://api.dustipharma.tj:1212/api/v1/app/admin/users?${params.toString()}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
+  fetch(`https://api.dustipharma.tj:1212/api/v1/app/admin/users?${params.toString()}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  })
+    .then(res => res.json())
+    .then(data => {
+      setUsers(data.payload || []);
     })
-      .then(res => res.json())
-      .then(data => {
-        setUsers(data.payload || []);
-      })
-      .catch(err => console.error('Ошибка загрузки пользователей:', err));
-  }, [token, searchTerm, currentPage, size]);
+    .catch(err => console.error('Ошибка загрузки пользователей:', err));
+}, [token, searchTerm, currentPage, size]);
+
 
   useEffect(() => {
     if (!token) return;
